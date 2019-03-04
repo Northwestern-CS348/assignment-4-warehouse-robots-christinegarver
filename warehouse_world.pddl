@@ -32,23 +32,24 @@
    )
    (:action robotMove
       :parameters (?loc1 - location ?loc2 - location ?r - robot)
-      :precondition (and (free ?r) (no-robot ?loc2) (connected ?loc1 ?loc2) (connected ?loc2 ?loc1))
-      :effect (and (at ?r ?loc2) (no-robot ?loc1))
+      :precondition (and (free ?r) (at ?r ?loc1) (no-pallette ?loc1) (no-robot ?loc2) (connected ?loc1 ?loc2) (connected ?loc2 ?loc1))
+      :effect (and (at ?r ?loc2) (not (at ?r ?loc1)) (no-robot ?loc1) (not (no-robot ?loc2)))
    )
    (:action robotMoveWithPallette
       :parameters (?loc1 - location ?loc2 - location ?r - robot ?p - pallette)
-      :precondition (and (has ?r ?p) (no-pallette ?loc2) (no-robot ?loc2) (connected ?loc1 ?loc2) (connected ?loc2 ?loc1))
-      :effect (and (no-pallette ?loc1) (no-robot ?loc1) (at ?r ?loc2))
+      :precondition (and (no-pallette ?loc2) (no-robot ?loc2) (connected ?loc1 ?loc2) (connected ?loc2 ?loc1))
+      :effect (and (no-pallette ?loc1) (not (no-pallette ?loc2)) (no-robot ?loc1)
+      (not (no-robot ?loc2)) (at ?r ?loc2) (at ?p ?loc2) (not (at ?p ?loc1)) (not (at ?r ?loc1)) (not (free ?r)))
    )
    (:action moveItemFromPalletteToShipment
       :parameters (?loc - location ?s - shipment ?sale - saleitem ?p - pallette ?o - order)
-      :precondition (and (contains ?p ?sale) (not (complete ?s)))
-      :effect (and (ships ?s ?o) (includes ?s ?sale))
+      :precondition (and (contains ?p ?sale) (packing-location ?loc) (at ?p ?loc) (ships ?s ?o) (not (complete ?s)))
+      :effect (and (not (contains ?p ?sale)) (includes ?s ?sale))
    )
    (:action completeShipment
       :parameters (?s - shipment ?o - order ?l - location)
-      :precondition (and (not (complete ?s)) (available ?l) (ships ?s ?o))
-      :effect (complete ?s)
-   )
+      :precondition (and (started ?s) (not (complete ?s)) (available ?l) (ships ?s ?o))
+      :effect (and (complete ?s) (available ?l))
+    )
 
 )
